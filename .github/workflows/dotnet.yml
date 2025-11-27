@@ -1,0 +1,56 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      #######################################################
+      # SUBSTITUI VARIÁVEIS NO config.json
+      #######################################################
+      - name: Replace variables in config.json
+        run: |
+          echo "🔧 Atualizando config.json..."
+
+          sed -i 's/__padrao_CI_CD__/${{ secrets.SENHA_ADMIN }}/g' assets/config.json
+          sed -i 's#API_URL_DEV#${{ secrets.API_URL }}#g' assets/config.json
+          sed -i 's#ENV_CICD#${{ secrets.AMBIENTE }}#g' assets/config.json
+
+          echo "✔ config.json atualizado"
+          cat assets/config.json
+
+      #######################################################
+      # BUILD ANDROID APK
+      #######################################################
+      - name: Install MAUI workload
+        run: dotnet workload install maui-android
+
+      - name: Restore
+        run: dotnet restore MyApp.sln
+
+      - name: Build APK
+        run: dotnet build MyApp.csproj -c Release -f net8.0-android
+
+      #######################################################
+      # COPIAR APK
+      #######################################################
+      - name: Copy APK
+        run: |
+          mkdir -p artifacts
+          cp **/*.apk artifacts/
+
+      #######################################################
+      # UPLOAD APK PARA DOWNLOAD
+      #######################################################
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: Android-APK
+          path: artifacts/
