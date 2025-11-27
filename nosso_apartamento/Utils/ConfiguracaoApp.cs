@@ -14,11 +14,15 @@ namespace nosso_apartamento.Utils
         }
 
         public static string SenhaAdmin { get; private set; } = string.Empty;
+        public static string SupabaseUrl { get; private set; } = string.Empty;
+        public static string SupabaseAnonKey { get; private set; } = string.Empty;
 
         public static async Task CarregarConfiguracaoAsync()
         {
             var config = await LerConfigAsync();
             SenhaAdmin = config.SenhaAdmin;
+            SupabaseUrl = config.SupabaseUrl;
+            SupabaseAnonKey = config.SupabaseAnonKey;
         }
 
         private static async Task<ConfigModel> LerConfigAsync()

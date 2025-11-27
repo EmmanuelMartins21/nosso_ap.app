@@ -1,4 +1,5 @@
 using nosso_apartamento.Models;
+using nosso_apartamento.Services;
 using System.Collections.ObjectModel;
 
 namespace nosso_apartamento.Views;
@@ -6,22 +7,54 @@ namespace nosso_apartamento.Views;
 public partial class ListaComprasPage : ContentPage
 {
 	public ObservableCollection<Compra> Compras { get; set; } = new ObservableCollection<Compra>();
-    public ListaComprasPage()
+    private DbService _dbService;
+
+    public ListaComprasPage(DbService dbService)
 	{
 		InitializeComponent();
-        CarregarDados();
+        _dbService = dbService;
         BindingContext = this;
-
     }
-    private void CarregarDados()
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        CarregarDados();
+    }
+
+    private async Task CarregarDados()
     {
         // vai buscar os dados futuramente do supabase
-        var item1 = new CompraItem
+        //var item1 = new CompraItem
+        //{
+        //    Nome = "Arroz",
+        //    Quantidade = 2,
+        //};
+        //Compras.Add(new Compra {Titulo= "Compra Novembro", DataCriacao = DateTime.UtcNow, Itens = new List<CompraItem>() { item1} });
+
+        var client = await _dbService.GetClientAsync();
+
+        client.Postgrest.Table<Compra>().Get().ContinueWith(t =>
         {
-            Nome = "Arroz",
-            Quantidade = 2,
-        };
-        Compras.Add(new Compra {Titulo= "Compra Novembro", DataCriacao = DateTime.UtcNow, Itens = new List<CompraItem>() { item1} });
+            if (t.Exception == null)
+            {
+                var comprasDoBanco = t.Result.Models;
+                foreach (var compra in comprasDoBanco)
+                {
+                    // Adiciona na coleção de Compras na thread principal
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        Compras.Add(compra);
+                    });
+                }
+            }
+            else
+            {
+                // Tratar erro
+            }
+        });
+
+        Compras.DistinctBy(x => x.PrimaryKey);
     }
 
     private async void Editar_Clicked(object sender, EventArgs e)

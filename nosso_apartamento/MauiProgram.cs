@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using nosso_apartamento.Services;
 
 namespace nosso_apartamento
 {
@@ -14,6 +15,8 @@ namespace nosso_apartamento
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
+            builder.Services.AddSingleton<DbService>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
