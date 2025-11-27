@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="nosso_apartamento.Views.AdicionarCompraPage"
+             Title="Nova Compra"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1E1E1E}">
+    
+    <VerticalStackLayout Padding="20" Spacing="15">
+
+        <!-- Título da Compra -->
+        <Label Text="Título da Compra"
+               FontSize="16"
+               FontAttributes="Bold"
+               TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"/>
+        
+        <Entry x:Name="TituloEntry"
+               Placeholder="Ex: Compra Novembro"
+               TextColor="{AppThemeBinding Light=#000, Dark=#FFF}"
+               PlaceholderColor="#888"
+               BackgroundColor="{AppThemeBinding Light=#F3F7FF, Dark=#2B2B2B}"
+               HeightRequest="48"/>
+
+        <!-- Separador -->
+        <BoxView HeightRequest="1" Color="#E0E0E0" Margin="0,10"/>
+
+        <!-- Título Itens -->
+        <Label Text="Itens da Compra"
+               FontSize="16"
+               FontAttributes="Bold"
+               TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"/>
+
+        <!-- Entrada de novo item -->
+        <Grid ColumnDefinitions="*,60" ColumnSpacing="10">
+            <Entry x:Name="NovoItemEntry"
+                   Grid.Column="0"
+                   Placeholder="Nome do item"
+                   TextColor="{AppThemeBinding Light=#000, Dark=#FFF}"
+                   PlaceholderColor="#888"
+                   BackgroundColor="{AppThemeBinding Light=#F3F7FF, Dark=#2B2B2B}"
+                   HeightRequest="48"/>
+            
+            <Entry x:Name="QuantidadeEntry"
+                   Grid.Column="1"
+                   Placeholder="Qtd"
+                   Keyboard="Numeric"
+                   TextColor="{AppThemeBinding Light=#000, Dark=#FFF}"
+                   PlaceholderColor="#888"
+                   BackgroundColor="{AppThemeBinding Light=#F3F7FF, Dark=#2B2B2B}"
+                   HeightRequest="48"
+                   Text="1"/>
+        </Grid>
+
+        <Button x:Name="AdicionarItemButton"
+                Text="+ Adicionar Item"
+                BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark=#1F3A5F}"
+                TextColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                Clicked="AdicionarItem_Clicked"
+                BorderWidth="1"
+                BorderColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"/>
+
+        <!-- Lista de itens adicionados -->
+        <Label Text="Itens Adicionados:"
+               FontSize="14"
+               FontAttributes="Bold"
+               TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"
+               Margin="0,10,0,0"/>
+
+        <CollectionView x:Name="ItensCollectionView"
+                        ItemsSource="{Binding ItensTemporarios}"
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="10"
+                          ColumnDefinitions="*,50,40"
+                          BackgroundColor="{AppThemeBinding Light=#F3F7FF, Dark=#2B2B2B}"
+                          Margin="0,5"
+                          CornerRadius="8">
+                        
+                        <Label Grid.Column="0"
+                               Text="{Binding Nome}"
+                               VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#000, Dark=#FFF}"/>
+                        
+                        <Label Grid.Column="1"
+                               Text="{Binding Quantidade, StringFormat='Qtd: {0}'}"
+                               VerticalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light=#666, Dark=#AAA}"/>
+                        
+                        <Button Grid.Column="2"
+                                Text="Remover"
+                                BackgroundColor="Transparent"
+                                TextColor="#FF4444"
+                                FontSize="12"
+                                Clicked="RemoverItem_Clicked"
+                                CommandParameter="{Binding .}"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Espaço flexível -->
+        <BoxView HeightRequest="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+
+        <!-- Botões de ação -->
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
+            <Button Grid.Column="0"
+                    Text="Cancelar"
+                    BackgroundColor="{AppThemeBinding Light=#F0F0F0, Dark=#333}"
+                    TextColor="{AppThemeBinding Light=#666, Dark=#CCC}"
+                    Clicked="Cancelar_Clicked"/>
+            
+            <Button Grid.Column="1"
+                    x:Name="SalvarButton"
+                    Text="Salvar Compra"
+                    BackgroundColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                    TextColor="White"
+                    Clicked="Salvar_Clicked"/>
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="nosso_apartamento.Views.HomePage"
+             BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1C1C1E}"
+             Title="Nosso AP">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="25">
+
+            <!-- Header -->
+            <VerticalStackLayout Spacing="8" Margin="0,10,0,20">
+                <Image Source="icon_app.png" WidthRequest="90" HeightRequest="90" HorizontalOptions="Center"/>
+                <Label Text="Bem-vindo ao Nosso AP"
+                       FontSize="28"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"/>
+                <Label Text="Administre sua casa de forma simples"
+                       FontSize="15"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#555, Dark=#CCC}"/>
+            </VerticalStackLayout>
+
+            <!-- Linha de atalhos -->
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="20">
+
+                <!-- Lista de compras -->
+                <Frame Grid.Column="0"
+                       BackgroundColor="{AppThemeBinding Light=#F3F7FF, Dark=#292929}"
+                       BorderColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                       CornerRadius="18"
+                       Padding="20">
+                    <VerticalStackLayout Spacing="10">
+                        <Image Source="ic_shopping.png"
+                               WidthRequest="40"
+                               HeightRequest="40"/>
+                        <Label Text="Compras"
+                               FontSize="18"
+                               TextColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"/>
+                        <Button Text="Abrir"
+                                CornerRadius="12"
+                                BackgroundColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                                TextColor="White"
+                                Command="{Binding GoToListaComprasCommand}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Finanças -->
+                <Frame Grid.Column="1"
+                       BackgroundColor="{AppThemeBinding Light=#F3F7FF, Dark=#292929}"
+                       BorderColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                       CornerRadius="18"
+                       Padding="20">
+                    <VerticalStackLayout Spacing="10">
+                        <Image Source="ic_finance.png"
+                               WidthRequest="40"
+                               HeightRequest="40"/>
+                        <Label Text="Financeiro"
+                               FontSize="18"
+                               TextColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"/>
+                        <Button Text="Abrir"
+                                CornerRadius="12"
+                                BackgroundColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                                TextColor="White"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

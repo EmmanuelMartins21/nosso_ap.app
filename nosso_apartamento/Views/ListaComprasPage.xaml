@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="nosso_apartamento.Views.ListaComprasPage"
+             Title="ListaComprasPage">
+    <VerticalStackLayout Padding="20" Spacing="18">
+
+        <!-- Título -->
+        <Label Text="Lista de Compras"
+               FontSize="28"
+               FontAttributes="Bold"
+               TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"/>
+
+        <!-- Botão Adicionar Compra -->
+        <Button x:Name="AdicionarCompra"
+                Text="+ Nova Compra"
+                CornerRadius="12"
+                BackgroundColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                TextColor="White"
+                Clicked="Adicionar_Clicked"
+                HeightRequest="48"/>
+
+        <!-- Lista de Compras -->
+        <CollectionView x:Name="ListaComprasView"
+                        ItemsSource="{Binding Compras}"
+                        SelectionMode="None">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Margin="0,10" Spacing="10">
+                        
+                        <!-- Cabeçalho da Compra -->
+                        <Grid Padding="15"
+                              ColumnDefinitions="*,50,50"
+                              BackgroundColor="{AppThemeBinding Light=#E8F1FF, Dark=#1F3A5F}"
+                              CornerRadius="12">
+                            
+                            <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                <Label Text="{Binding Titulo}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"/>
+                                
+                                <Label Text="{Binding DataCriacao, StringFormat='Criada em {0:dd/MM/yyyy HH:mm}'}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#666, Dark=#AAA}"/>
+                            </VerticalStackLayout>
+
+                            <Button Grid.Column="1"
+                                    Text="Editar"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"
+                                    FontSize="12"
+                                    Clicked="Editar_Clicked"
+                                    CommandParameter="{Binding .}"/>
+
+                            <Button Grid.Column="2"
+                                    Text="Remover"
+                                    BackgroundColor="Transparent"
+                                    TextColor="#FF4444"
+                                    FontSize="12"
+                                    Clicked="Remover_Clicked"
+                                    CommandParameter="{Binding .}"/>
+                        </Grid>
+
+                        <!-- Lista de Itens -->
+                        <CollectionView ItemsSource="{Binding Itens}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="15"
+                                          ColumnDefinitions="40,*,50"
+                                          BackgroundColor="{AppThemeBinding Light=#F3F7FF, Dark=#2B2B2B}"
+                                          Margin="10,0"
+                                          CornerRadius="8">
+
+                                        <!-- Checkbox -->
+                                        <CheckBox Grid.Column="0"
+                                                  IsChecked="{Binding Comprado}"
+                                                  Color="{AppThemeBinding Light=#0058D0, Dark=#4285F4}"/>
+
+                                        <!-- Nome e Quantidade -->
+                                        <VerticalStackLayout Grid.Column="1" 
+                                                           VerticalOptions="Center"
+                                                           Spacing="2">
+                                            <Label Text="{Binding Nome}"
+                                                   TextColor="{AppThemeBinding Light=#000, Dark=#FFF}"
+                                                   FontSize="14"/>
+                                            <Label Text="{Binding Quantidade, StringFormat='Quantidade: {0}'}"
+                                                   TextColor="{AppThemeBinding Light=#666, Dark=#AAA}"
+                                                   FontSize="12"/>
+                                        </VerticalStackLayout>
+
+                                        <!-- Remover Item -->
+                                        <Button Grid.Column="2"
+                                                Text="✕"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#FF4444"
+                                                FontSize="18"
+                                                Padding="0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>
