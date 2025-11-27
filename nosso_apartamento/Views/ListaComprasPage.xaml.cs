@@ -28,8 +28,15 @@ public partial class ListaComprasPage : ContentPage
     {
         if (sender is Button button && button.CommandParameter is Compra compra)
         {
-            // TODO: Implementar edição de compra
-            await DisplayAlert("Info", "Edição em desenvolvimento", "OK");
+            var novaCompraPage = new AdicionarCompraPage(
+                onCompraSalva: (compraAtualizada) =>
+                {
+                    // A compra é atualizada diretamente, pois é a mesma referência
+                },
+                compraParaEditar: compra
+            );
+
+            await Navigation.PushModalAsync(novaCompraPage);
         }
     }
 

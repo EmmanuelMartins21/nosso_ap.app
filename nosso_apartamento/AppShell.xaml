@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:nosso_apartamento"
     xmlns:pages="clr-namespace:nosso_apartamento.Views"
-    Title="nosso_apartamento">
+    Shell.NavBarIsVisible="False">
     
     <ShellContent
         Route="login"

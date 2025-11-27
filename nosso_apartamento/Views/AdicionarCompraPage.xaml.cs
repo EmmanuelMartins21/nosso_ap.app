@@ -7,11 +7,27 @@ public partial class AdicionarCompraPage : ContentPage
 {
 	public ObservableCollection<CompraItem> ItensTemporarios { get; set; } = new ObservableCollection<CompraItem>();
     private Action<Compra> _onCompraSalva;
+    private Compra _compraEditando;
+    private bool _isEdicao;
 
-    public AdicionarCompraPage(Action<Compra> onCompraSalva = null)
+    public AdicionarCompraPage(Action<Compra> onCompraSalva = null, Compra compraParaEditar = null)
 	{
 		InitializeComponent();
         _onCompraSalva = onCompraSalva;
+        _compraEditando = compraParaEditar;
+        _isEdicao = compraParaEditar != null;
+
+        if (_isEdicao)
+        {
+            Title = "Editar Compra";
+            TituloEntry.Text = _compraEditando.Titulo;
+            
+            foreach (var item in _compraEditando.Itens)
+            {
+                ItensTemporarios.Add(item);
+            }
+        }
+
         BindingContext = this;
 	}
 
@@ -68,15 +84,26 @@ public partial class AdicionarCompraPage : ContentPage
             return;
         }
 
-        var novaCompra = new Compra
-        {
-            Titulo = titulo,
-            DataCriacao = DateTime.UtcNow,
-            Itens = new List<CompraItem>(ItensTemporarios),
-            Concluido = false
-        };
+        Compra compra;
 
-        _onCompraSalva?.Invoke(novaCompra);
+        if (_isEdicao)
+        {
+            _compraEditando.Titulo = titulo;
+            _compraEditando.Itens = new List<CompraItem>(ItensTemporarios);
+            compra = _compraEditando;
+        }
+        else
+        {
+            compra = new Compra
+            {
+                Titulo = titulo,
+                DataCriacao = DateTime.UtcNow,
+                Itens = new List<CompraItem>(ItensTemporarios),
+                Concluido = false
+            };
+        }
+
+        _onCompraSalva?.Invoke(compra);
         await Navigation.PopModalAsync();
     }
 
