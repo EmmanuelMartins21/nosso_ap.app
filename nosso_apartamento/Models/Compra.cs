@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
@@ -21,6 +22,8 @@ namespace nosso_apartamento.Models
 
         [Column("concluido")]
         public bool Concluido { get; set; } = false;
+        
+        [JsonPropertyName("compra_itens")]
         public List<CompraItem> Itens { get; set; } = new List<CompraItem>();
     }
 }

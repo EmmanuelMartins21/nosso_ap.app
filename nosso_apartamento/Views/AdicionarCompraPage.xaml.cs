@@ -1,4 +1,6 @@
 using nosso_apartamento.Models;
+using nosso_apartamento.Services;
+using nosso_apartamento.Repositories;
 using System.Collections.ObjectModel;
 
 namespace nosso_apartamento.Views;
@@ -9,22 +11,28 @@ public partial class AdicionarCompraPage : ContentPage
     private Action<Compra> _onCompraSalva;
     private Compra _compraEditando;
     private bool _isEdicao;
+    private DbService _dbService;
+    private DbRepository _repository;
 
-    public AdicionarCompraPage(Action<Compra> onCompraSalva = null, Compra compraParaEditar = null)
+    public AdicionarCompraPage(Action<Compra> onCompraSalva = null, Compra compraParaEditar = null, DbService dbService = null)
 	{
 		InitializeComponent();
         _onCompraSalva = onCompraSalva;
         _compraEditando = compraParaEditar;
         _isEdicao = compraParaEditar != null;
+        _dbService = dbService;
 
         if (_isEdicao)
         {
             Title = "Editar Compra";
             TituloEntry.Text = _compraEditando.Titulo;
             
-            foreach (var item in _compraEditando.Itens)
+            if (_compraEditando.Itens != null)
             {
-                ItensTemporarios.Add(item);
+                foreach (var item in _compraEditando.Itens)
+                {
+                    ItensTemporarios.Add(item);
+                }
             }
         }
 
@@ -84,27 +92,66 @@ public partial class AdicionarCompraPage : ContentPage
             return;
         }
 
-        Compra compra;
+        try
+        {
+            var client = await _dbService.GetClientAsync();
+            _repository = new DbRepository(client);
 
-        if (_isEdicao)
-        {
-            _compraEditando.Titulo = titulo;
-            _compraEditando.Itens = new List<CompraItem>(ItensTemporarios);
-            compra = _compraEditando;
-        }
-        else
-        {
-            compra = new Compra
+            Compra compra;
+
+            if (_isEdicao)
             {
-                Titulo = titulo,
-                DataCriacao = DateTime.UtcNow,
-                Itens = new List<CompraItem>(ItensTemporarios),
-                Concluido = false
-            };
-        }
+                _compraEditando.Titulo = titulo;
+                // Não atribuir Itens aqui para evitar serialização
+                
+                // Atualizar apenas os campos da compra no banco
+                await _repository.AtualizarAsync(_compraEditando);
+                
+                // Deletar itens antigos e inserir novos
+                await _repository.DeletarItensPorCompraAsync(_compraEditando.Id.ToString());
+                
+                foreach (var item in ItensTemporarios)
+                {
+                    item.CompraId = _compraEditando.Id;
+                    item.Id = Guid.NewGuid();
+                    await _repository.AdicionarItemAsync(item);
+                }
 
-        _onCompraSalva?.Invoke(compra);
-        await Navigation.PopModalAsync();
+                _compraEditando.Itens = new List<CompraItem>(ItensTemporarios);
+                compra = _compraEditando;
+            }
+            else
+            {
+                compra = new Compra
+                {
+                    Id = Guid.NewGuid(),
+                    Titulo = titulo,
+                    DataCriacao = DateTime.UtcNow,
+                    Itens = new List<CompraItem>(),
+                    Concluido = false
+                };
+
+                // Inserir compra no banco (sem os itens)
+                var compraInserida = await _repository.AdicionarAsync(compra);
+                compra = compraInserida;
+
+                // Inserir itens no banco
+                foreach (var item in ItensTemporarios)
+                {
+                    item.CompraId = compra.Id;
+                    item.Id = Guid.NewGuid();
+                    var itemInserido = await _repository.AdicionarItemAsync(item);
+                    compra.Itens.Add(itemInserido);
+                }
+            }
+
+            _onCompraSalva?.Invoke(compra);
+            await Navigation.PopModalAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Erro", $"Erro ao salvar: {ex.Message}", "OK");
+        }
     }
 
     private async void Cancelar_Clicked(object sender, EventArgs e)

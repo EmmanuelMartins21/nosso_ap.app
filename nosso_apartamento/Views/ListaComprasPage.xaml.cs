@@ -1,5 +1,6 @@
 using nosso_apartamento.Models;
 using nosso_apartamento.Services;
+using nosso_apartamento.Repositories;
 using System.Collections.ObjectModel;
 
 namespace nosso_apartamento.Views;
@@ -8,6 +9,7 @@ public partial class ListaComprasPage : ContentPage
 {
 	public ObservableCollection<Compra> Compras { get; set; } = new ObservableCollection<Compra>();
     private DbService _dbService;
+    private DbRepository _repository;
 
     public ListaComprasPage(DbService dbService)
 	{
@@ -24,37 +26,28 @@ public partial class ListaComprasPage : ContentPage
 
     private async Task CarregarDados()
     {
-        // vai buscar os dados futuramente do supabase
-        //var item1 = new CompraItem
-        //{
-        //    Nome = "Arroz",
-        //    Quantidade = 2,
-        //};
-        //Compras.Add(new Compra {Titulo= "Compra Novembro", DataCriacao = DateTime.UtcNow, Itens = new List<CompraItem>() { item1} });
+        // Limpar coleção anterior para evitar duplicação
+        Compras.Clear();
 
         var client = await _dbService.GetClientAsync();
+        _repository = new DbRepository(client);
 
-        client.Postgrest.Table<Compra>().Get().ContinueWith(t =>
+        try
         {
-            if (t.Exception == null)
+            var comprasDoBanco = await _repository.ObterTodasAsync();
+            
+            foreach (var compra in comprasDoBanco)
             {
-                var comprasDoBanco = t.Result.Models;
-                foreach (var compra in comprasDoBanco)
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    // Adiciona na coleção de Compras na thread principal
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        Compras.Add(compra);
-                    });
-                }
+                    Compras.Add(compra);
+                });
             }
-            else
-            {
-                // Tratar erro
-            }
-        });
-
-        Compras.DistinctBy(x => x.PrimaryKey);
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Erro", $"Erro ao carregar compras: {ex.Message}", "OK");
+        }
     }
 
     private async void Editar_Clicked(object sender, EventArgs e)
@@ -62,11 +55,12 @@ public partial class ListaComprasPage : ContentPage
         if (sender is Button button && button.CommandParameter is Compra compra)
         {
             var novaCompraPage = new AdicionarCompraPage(
-                onCompraSalva: (compraAtualizada) =>
+                onCompraSalva: async (compraAtualizada) =>
                 {
-                    // A compra é atualizada diretamente, pois é a mesma referência
+                    await CarregarDados();
                 },
-                compraParaEditar: compra
+                compraParaEditar: compra,
+                dbService: _dbService
             );
 
             await Navigation.PushModalAsync(novaCompraPage);
@@ -81,17 +75,30 @@ public partial class ListaComprasPage : ContentPage
             
             if (confirmacao)
             {
-                Compras.Remove(compra);
+                try
+                {
+                    var client = await _dbService.GetClientAsync();
+                    var repository = new DbRepository(client);
+                    await repository.DeletarAsync(compra.Id.ToString());
+                    Compras.Remove(compra);
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Erro", $"Erro ao remover: {ex.Message}", "OK");
+                }
             }
         }
     }
 
     private async void Adicionar_Clicked(object sender, EventArgs e)
     {
-        var novaCompraPage = new AdicionarCompraPage(onCompraSalva: (novaCompra) =>
-        {
-            Compras.Add(novaCompra);
-        });
+        var novaCompraPage = new AdicionarCompraPage(
+            onCompraSalva: async (novaCompra) =>
+            {
+                await CarregarDados();
+            },
+            dbService: _dbService
+        );
 
         await Navigation.PushModalAsync(novaCompraPage);
     }
